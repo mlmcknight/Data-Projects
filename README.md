@@ -1,3 +1,3 @@
-# Data Projects Portfolio
+# Portfolio
 
 ## This portfolio contains my coding work.
