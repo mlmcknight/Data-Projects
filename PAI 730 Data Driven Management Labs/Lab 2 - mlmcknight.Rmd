@@ -1,0 +1,127 @@
+---
+title: "Lab 2"
+author: "Matt McKnight"
+date: "February 3rd, 2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+## Syracuse Land Parcel Database
+```{r}
+dat <- read.csv( "https://raw.githubusercontent.com/lecy/maps-in-R/master/Data/syr_parcels.csv")
+ls(dat)
+
+```
+
+
+
+## Question 1
+### What is the total assessed value of all the land in Syracuse?
+```{r}
+sum(dat$AssessedVa)
+```
+## Answer
+###The total assessed value of all the land in Syracuse is $7,538,424,950.
+
+
+
+
+
+## Question 2
+### What proportion of land parcels is tax exempt? Use the LandUse variable and the table below to create a logical statement that identified all of the tax exempt parcels. What is the value of these non-taxable parcels?
+```{r}
+#Basically create a logical vector. 
+
+# Creation of land parcels tax exempt dichotomous variable.
+NonTaxed_land <- c(dat$LandUse == "Vacant Land" | dat$LandUse == "Parking" | dat$LandUse == "Schools" | dat$LandUse == "Parks" | dat$LandUse == "Cemetery" | dat$LandUse == "Religious" | dat$LandUse == "Recreation" | dat$LandUse == "Community Services" | dat$LandUse == "Utilities")
+
+# Number of land parcels tax exempt. 
+sum(dat$LandUse == "Vacant Land" | dat$LandUse == "Parking" | dat$LandUse == "Schools" | dat$LandUse == "Parks" | dat$LandUse == "Cemetery" | dat$LandUse == "Religious" | dat$LandUse == "Recreation" | dat$LandUse == "Community Services" | dat$LandUse == "Utilities")
+
+#Find values for Taxed land parcels, FALSE category
+summary(NonTaxed_land)
+
+#Porportion of land parcels Tax exempt
+4878/(4878+36624)
+
+#Value of non-taxable parcels
+sum(dat$AssessedVa[NonTaxed_land == TRUE])
+
+```
+## Answer
+
+Twelve percent of land parcels in Syracuse are tax exempt. The value of these non-taxable land parcels is $3,006,860,002.
+
+
+
+## Question 3
+### Which property has the highest delinquent tax bill?
+```{r}
+which.max(dat$AmtDelinqu) 
+max(dat$AmtDelinqu)
+
+```
+## Answer
+### The property with the highest delinquent tax bill was N #22469 with $1,543,354. Further review of #22469 in the data spreadsheet shows that this is a commercial property downtown.
+
+
+
+## Question 4
+### Which of these neighborhoods listed below has the highest proportion of vacant buildings?
+```{r}
+table(dat$Nhood, dat$VacantBuil)
+# Westcott porportion
+24/(1474+24) 
+# Northside porportion
+264/(2977+264) 
+#Strathmore proportion
+38/(1769+38) 
+#Southside proportion
+120/(1239+120) 
+0.088*100
+```
+## Answer
+
+The Southside neighborhood reports the highest porportion of vacant buildings at 8.8 percent.
+
+
+
+## Question 5
+### How many single family homes worth more than $100,000 each are located in each of the four neighborhoods above?
+```{r}
+
+#True or False Statements
+#dat$LandUse == "Single Family" | dat$AssessedVa > 100000 | dat$Nhood == "Westcott" | dat$Nhood == "Northside" | dat$Nhood == "Strathmore" | dat$Nhood == "Southside"
+
+#Single family homes > $100,000 in Westcott
+sum(dat$LandUse == "Single Family" & dat$AssessedVa > 100000 & dat$Nhood == "Westcott")
+
+#Single family homes > $100,000 in Northside
+sum(dat$LandUse == "Single Family" & dat$AssessedVa > 100000 & dat$Nhood == "Northside")
+
+#Single family homes > $100,000 in Strathmore
+sum(dat$LandUse == "Single Family" & dat$AssessedVa > 100000 & dat$Nhood == "Strathmore")
+     
+#Single family homes > $100,000 in Southside
+sum(dat$LandUse == "Single Family" & dat$AssessedVa > 100000 & dat$Nhood == "Southside")
+
+#Sum of all select neighborhoods
+208+5+461+0
+
+#Should learn how to place all of these responses in a table to present!
+```
+## Answer
+
+The number of single family homes over $100,000 in four Syrcause neighborhoods are as follows:
+
+Westcott   208  
+Northside  5  
+Strathmore 461
+
+Southside  0 
+
+In total, these select single family homes number 674 in the four selected neighborhoods.
+
+
+

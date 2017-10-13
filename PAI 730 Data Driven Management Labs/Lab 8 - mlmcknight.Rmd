@@ -1,0 +1,77 @@
+---
+title: "Lab 8 - Matt_McKnight"
+author: "Matt McKnight"
+date: "March 13, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Regular Expressions
+
+## Question 1 
+### Find only: "through" "trough"
+```{r}
+
+strings <-c("through","rough","thorough","throw","though","threw","thought","thru","trough")
+# practice 
+# grep( "t[h]", strings, value = TRUE)
+# grep( "^thr|^tr", strings, value = TRUE)
+# grep( "^thr|ough$", strings, value = TRUE)
+
+grep( "th*rough", strings, value = TRUE)
+
+``` 
+
+
+## Question 2
+### Find only: "through" "rough" "thorough" "though" "trough"
+```{r}
+
+grep( "ough$", strings, value = TRUE)
+
+```
+
+
+## Question 3
+### Find only: "chose"
+```{r}
+
+strings <- c("lose","lost","hose","chose","hoser","chosen","loose","choose","looose","house")
+
+# practice - select all values
+# grep( "os.|ouse$", strings, value = TRUE)
+
+grep( "chose$", strings, value = TRUE)
+
+
+```
+
+
+## Question 4
+### Find only: "hose" "hoser"
+```{r}
+
+grep( "^hos", strings, value = TRUE)
+
+```
+
+
+## Question 5
+### Find only: "loose" "looose"
+```{r}
+
+grep( "^loo", strings, value = TRUE)
+
+```
+
+## Optional 
+### Find only: "through" "rough" "thorough" "thought" "trough"
+```{r}
+
+strings <-c("through","rough","thorough","ought","throw","thought","thru","trough")
+
+grep( "rou.|hou.", strings, value = TRUE)
+
+```
+
+

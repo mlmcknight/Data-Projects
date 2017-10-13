@@ -1,0 +1,63 @@
+---
+title: "Lab 1"
+author: "Matt McKnight"
+date: "January 28, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+### Beginning command Lines
+```{r}
+library("Lahman")
+data("Master")
+ls(Master)
+```
+
+The command "ls" lists the variables found within the Master dataset.
+
+## Question 1
+### What is the average weight of an MLB player?
+```{r}
+summary(Master$weight)
+mean(Master$weight, na.rm = TRUE)
+```
+
+The average weight of a MLB player is 186 pounds.
+
+## Question 2
+### How many MLB players have come from the Netherlands? 
+```{r}
+table(Master$birthCountry)
+table(Master$birthCountry == "Netherlands")
+```
+
+The number of MLB players born in the Netherlands is 12.
+
+## Question 3
+### How tall was the tallest player in MLB? The shortest?
+```{r}
+summary(Master$height)
+```
+
+The tallest MLB player was 6'11" inches, while the shortest was only 3'7" inches.
+
+## Question 4
+### What percentage of players switch hit (bat from both sides of the plate)? 
+```{r}
+table(Master$bats)
+(1163/(1163+4879+11614))*100
+```
+
+6.59 percent of MLB players are switch hitters.
+
+## Question 5
+### OPTIONAL: How many players are right-handed when they throw, but left-handed when they bat?
+```{r}
+table(Master$throws, Master$bats)
+sum(Master$throws == "R" & Master$bats == "L", na.rm = TRUE)
+```
+
+2,054 players throw right-handed but bat left-handed.
+

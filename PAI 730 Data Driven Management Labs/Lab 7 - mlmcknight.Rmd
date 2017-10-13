@@ -1,0 +1,246 @@
+---
+title: "Lab 7 - Matt_McKnight"
+author: "Matt McKnight"
+date: "March 13, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Monty Hall simulation
+
+### STEP 1 - CREATE A NEW GAME
+```{r}
+
+createGame <- function( )
+{
+
+    a.game <- sample( x=c("goat","goat","car"), size=3, replace=F )
+ 
+    
+    return( a.game )
+} 
+
+
+
+createGame()  # test the function
+
+```
+
+### STEP 2 - SELECT A DOOR 
+```{r}
+
+pickDoor <- function( )
+{  
+
+   a.pick <- sample( x=c(1,2,3), size=1, replace=F)
+   
+   if( a.pick== "1" )
+   { 
+   return( a.pick )  # number between 1 and 3
+   }
+
+   if( a.pick== "2" )
+   { 
+   return( a.pick ) 
+   }
+   
+   if( a.pick== "3" )
+   { 
+   return( a.pick ) 
+   }
+ 
+}
+
+# test the function
+
+pickDoor()
+
+```
+
+
+
+### STEP 3 - HOST OPENS GOAT DOOR
+```{r}
+# note to call this function you need inputs from previous functions
+
+this.game <- createGame()
+
+this.game
+
+my.pick <- pickDoor()
+# my.pick is a result of the pickdoor function
+
+my.pick
+
+door_choice <- 1:3
+
+openGoatDoor <- function( game, a.pick )
+{
+
+   if( game [a.pick] == "goat" )
+   { 
+      opened.door <- door_choice[ game != "car" & door_choice != a.pick ]
+   }
+
+   if( game [a.pick] == "car" )
+   { 
+      car_door <- door_choice[ game != "car" & door_choice != a.pick ]
+      opened.door <- sample( x=car_door, size=1, replace=F )  
+   }
+   
+
+   return( opened.door ) # number between 1 and 3
+
+}
+
+
+
+
+# test it
+
+openGoatDoor( this.game, my.pick )
+
+
+
+```
+
+
+
+### STEP 4 - CHANGE DOORS
+```{r}
+changeDoor <- function( stay=T, opened.door, a.pick )
+{
+
+   if ( stay == T )
+    {
+       final.pick <- my.pick
+    }
+  
+   if ( stay == F )
+    {
+      final.pick <- door_choice[ 
+        door_choice != opened.door & door_choice != a.pick ]
+    }
+  
+   return( final.pick )  # number between 1 and 3
+
+}
+
+
+
+# test it
+
+opened.door <- openGoatDoor( this.game, my.pick )
+
+changeDoor( stay=F, opened.door=opened.door, a.pick=my.pick )
+```
+
+
+
+
+### STEP 5 - DETERMINE IF CONTENSTANT HAS WON
+```{r}
+determineWinner <- function( final.pick, game )
+{
+
+   if( game [ final.pick ] == "car" )
+   {
+      return( "W" )
+   }
+  
+   if( game [ final.pick ] == "goat" )
+   {
+      return( "L" )
+   }
+
+}
+
+
+final.pick <- changeDoor( stay=F, opened.door=opened.door, a.pick=my.pick )
+
+determineWinner( final.pick=final.pick, game=this.game )
+
+```
+
+
+
+### PUTTING IT ALL TOGETHER - PLAY THE GAME
+```{r}
+playTheGame <- function( num.sims=10000, stay=T )
+{
+
+
+   results <- NULL   # create a vector to store results
+
+
+   for( i in 1:num.sims )
+   {
+      
+      game <- createGame()
+      
+      my.pick <- pickDoor()
+      
+      opened.door <- openGoatDoor( game, my.pick )
+      
+      final.pick <- changeDoor( stay=stay, opened.door=opened.door, a.pick=my.pick )
+      
+      win.lose <- determineWinner( final.pick, game )
+      
+      results <- c( results, win.lose )
+      
+   } # end of loop
+   
+   
+   return( results )
+   
+
+} # end of function
+
+
+```
+
+
+### TESTING THE GAME
+```{R}
+
+results.stay <- playTheGame( num.sims=10000, stay=T )
+
+results.switch <- playTheGame( num.sims=10000, stay=F )
+
+table( results.stay )
+
+table( results.switch )
+
+
+
+
+# stay
+
+prop.wins <- prop.table( table( results.stay ))
+
+bar.points <- barplot( height=prop.wins, yaxt="n",
+                       names.arg=c("Lose","Win"), ylim=c(0,1),
+                       main="Outcome of Your Strategy: Stay",
+                       col="steelblue", border="white" )
+
+text( x=bar.points, y=prop.wins, col="gray20",
+      labels=round(prop.wins,2), pos=3, cex=1.3 )
+
+
+
+
+# switch
+
+prop.wins <- prop.table( table( results.switch ))
+
+bar.points <- barplot( height=prop.wins, yaxt="n",
+                       names.arg=c("Lose","Win"), ylim=c(0,1),
+                       main="Outcome of Your Strategy: Switch",
+                       col="steelblue", border="white" )
+
+text( x=bar.points, y=prop.wins, col="gray20",
+      labels=round(prop.wins,2), pos=3, cex=1.3 )
+```
+
+
+

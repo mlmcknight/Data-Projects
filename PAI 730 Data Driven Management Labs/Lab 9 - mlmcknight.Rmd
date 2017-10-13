@@ -1,0 +1,260 @@
+---
+title: "Monty Hall Interactive Simulation"
+author: "Matt McKnight"
+date: "March 13, 2017"
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+library( flexdashboard )
+library( shiny )
+library(EBImage)
+
+createGame <- function( )
+{
+
+    a.game <- sample( x=c("goat","goat","car"), size=3, replace=F )
+ 
+    return( a.game )
+} 
+
+pickDoor <- function( )
+{
+
+   a.pick <- sample( x=c(1,2,3), size=1, replace=F )
+
+   return( a.pick )
+
+}
+
+openGoatDoor <- function( game, a.pick )
+{
+
+  doors <- 1:3 
+  
+  if( game[ a.pick ] == "goat" )
+   {
+       
+      opened.door <- doors[ doors != a.pick & game != "car" ]
+
+   }
+
+   if( game[ a.pick ] == "car"   )
+   {
+
+       one.of.these <- doors[ doors != a.pick & game != "car" ]
+
+       opened.door <- sample( x=one.of.these, size=1, replace=F )
+
+   }
+
+   return( opened.door )
+
+}
+
+changeDoor <- function( stay=T, opened.door, a.pick )
+{
+
+  doors <- 1:3
+
+  if( stay==T )
+  {
+    final.pick <- a.pick 
+  }
+  
+  if( stay==F )
+  {
+    final.pick <- doors[ doors != opened.door & doors != a.pick ]
+  }
+
+  return( final.pick )
+
+}
+
+determineWinner <- function( final.pick, game )
+{
+
+   if( game[ final.pick ] == "car" )
+   {
+      return( "W" )
+   }
+   if( game[ final.pick ] == "goat" )
+   {
+      return( "L" )
+   }
+
+}
+
+playTheGame <- function( num.sims=10000, stay=T )
+{
+
+   results <- NULL
+
+
+   for( i in 1:num.sims )
+   {
+      
+      
+      game <- createGame()
+      
+      my.pick <- pickDoor()
+      
+      opened.door <- openGoatDoor( game, my.pick )
+      
+      final.pick <- changeDoor( stay=stay, opened.door=opened.door, a.pick=my.pick )
+      
+      win.lose <- determineWinner( final.pick, game )
+      
+      results <- c( results, win.lose )
+      
+      
+   } # end of loop
+   
+   return( results )
+
+} # end of function
+
+```
+
+
+
+### Frame 1
+```{r}
+
+img = readImage("http://www.financiallyfitz.com/wp-content/uploads/2015/09/monty-hall-show-goat-e1441458612176.png")
+
+display(img, method = "raster")
+
+```
+
+*** 
+
+Rules for Monty Hall stimulation.
+
+1) Player picks one of 3 doors to choose from.
+
+2) Game host opens one door, not chosen by player, to reveal a goat.
+
+3) Player chooses to stay with door chosen or switch to other remaining closed door.
+
+4) Game host reveals whether the final chosen door contained a goat or a car.
+
+
+### Frame 2
+
+
+
+```{r}
+
+ui <- fluidPage(
+
+   radioButtons( "radio", label = h3("Your Strategy"),
+      choices = list("Stay" = TRUE, "Switch" = FALSE), 
+      selected = TRUE),
+
+   plotOutput("plot")    
+
+)
+
+server <- function(input, output) {
+
+output$plot <- renderPlot({
+
+  if (input$radio == TRUE)
+  {
+
+   results <- playTheGame( num.sims=10000, stay=T )
+
+   tab <- round( prop.table( table( results ) ), 2 )
+
+   bar.points <- barplot( height=tab, yaxt="n",
+                       names.arg=c("Lose","Win"), ylim=c(0,1),
+                       main="Game Outcomes with Current Strategy",
+                       col="steelblue", border="white" )
+
+   text( x=bar.points, y=tab, col="gray20",
+      labels=tab, pos=3, cex=1.3 )
+  }
+
+  if (input$radio == FALSE)
+  {
+
+   results <- playTheGame( num.sims=10000, stay=F )
+
+   tab <- round( prop.table( table( results ) ), 2 )
+
+   bar.points <- barplot( height=tab, yaxt="n",
+                       names.arg=c("Lose","Win"), ylim=c(0,1),
+                       main="Game Outcomes with Current Strategy",
+                       col="steelblue", border="white" )
+
+   text( x=bar.points, y=tab, col="gray20",
+      labels=tab, pos=3, cex=1.3 )
+   }
+ })
+}
+
+shinyApp(ui = ui, server = server)
+
+# Main references: 
+# https://www.bioconductor.org/help/course-materials/2015/CSAMA2015/lab/shiny.html#reactivity
+# https://shiny.rstudio.com/tutorial/
+# https://www.rstudio.com/products/shiny/shiny-user-showcase/
+
+```
+
+*** 
+
+Why does switching doors produce better results?
+
+As shown in the plot to the left, switching doors produces better results because the odds favor switching doors. The player may choose between three doors that either have a car (behind one door) or a goat (behind two doors). When the game begins, the player has 1/3 chance of winning a car and 2/3 chance of winning a goat. This probability does not change once a door revealing a goat is opened by the game host, even if perceptively it seems this is the case. Once a goat door is revealed, the probability that a car is behind the remaining unchosen door is still 2/3 chance. This should give the player more confidence to switch doors, since the chance of the car being behind the final door is 33% higher than it would be if the player stayed with the initial door of choice. 
+
+
+### Frame 3
+
+```{r}
+
+ui <- fluidPage(
+
+   numericInput( "num", label = h3("Number of Simulations"), value = 1000 ),
+
+   plotOutput("plot")
+
+   )
+
+server <- function(input, output) { 
+
+output$plot <- renderPlot({ 
+
+   results <- playTheGame( num.sims=input$num, stay=F )
+
+   tab <- round( prop.table( table( results ) ), 2 )
+
+   bar.points <- barplot( height=tab, yaxt="n",
+                       names.arg=c("Lose","Win"), ylim=c(0,1),
+                       main="Game Outcomes with Strategy = Switch",
+                        col="steelblue", border="white" )
+
+   text( x=bar.points, y=tab, col="gray20",
+      labels=tab, pos=3, cex=1.3 )
+  })
+}
+
+shinyApp(ui = ui, server = server)
+
+```
+
+*** 
+
+Importance of simulating large number of games: 
+
+As the number of simulated random games increases, the probabililties of the two different strategies becomes more consistent. Larger number of simulations stabilize the randomness of outcomes to reveal the trend in probability between staying with a player's first door choice or switching doors. 
+
+You can notice this statistical principle when changing the amount of simulations computed in the input box to the left. 
+
+
+

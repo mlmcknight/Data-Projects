@@ -1,0 +1,99 @@
+---
+title: "Lab 4"
+author: "Matt McKnight"
+date: "February 17, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+## Describing Data
+```{r}
+dat <- read.csv( "https://raw.githubusercontent.com/lecy/maps-in-R/master/Data/syr_parcels.csv")
+ls(dat)
+library(tibble)
+library(dplyr)
+
+```
+
+
+## Question 1
+### Read in the parcel data from GitHub. What class is the dataset? How many rows of data are there? How many variables? How would you check the class of a variables in the dataset?
+```{r}
+class(dat)
+nrow(dat)
+ncol(dat)
+tbl_df( dat )
+
+```
+## Answer
+### Using the function "class", it reports that dat is a data.frame.
+### nrow and ncol report 41,502 rows of data with 64 variables.  
+### THe class of any variable may be found with the class function, "class(data$var)". Or, using the tbl_df function, every variable and its class can be listed.
+
+
+## Question 2
+### Convert your dataset into a tibble using the tbl_df() function. What is the class of the dataset now? How can you check rows, columns, and class of variables for the tibble? 
+```{r}
+dat <- tbl_df( dat )
+class(tbl_df(dat))
+tbl_df(dat)
+tbl_df(dat$TAX_ID)
+glimpse(dat)
+
+
+```
+##Answer
+### The class of the dataset is now a tibble. 
+### You can check rows, columns, and class of variables for the tibble by simply using the "tbl_df" command. Specifying the datest will populate a table showing the number of rows, columns, and class for every variable in the tibble. If only one variable is in need of being checked for its class, the function can be further specified to include the variable as shown above.The glimpse function may also be used to explicitly report the number of observations (rows) and variables (columns) up front.
+
+##Question 3
+### Create a subset of the data by retaining the following set of variables: Acres, LandUse, AmtDelinqu,  AssessedLa, AssessedVa, VacantBuil, YearBuilt, Nhood
+```{r}
+sub_dat<-data.frame(dat$Acres, dat$LandUse, dat$AmtDelinqu, dat$AssessedLa, dat$AssessedVa, dat$VacantBuil, dat$YearBuilt, dat$Nhood)
+ls(sub_dat)
+# Make a tibble 
+sub_dat <- tbl_df( sub_dat )
+```
+##Answer
+### Check!
+
+##Question 4
+### Drop the cases where the year of construction (YearBuilt) is reported as zero using the filter() function. Which values were dropped?
+```{r}
+#filter(sub_dat, sub_dat$dat.YearBuilt > 0)
+
+filter(sub_dat, (!(sub_dat$dat.YearBuilt == 0)))
+table(sub_dat$dat.LandUse, sub_dat$dat.YearBuilt == 0)
+table(sub_dat$dat.YearBuilt == 0)
+
+```
+##Answer
+### The filter of the tibble reports only 36,773 rows of the original 41,502 rows. Using a table command, we see that values dropped include a variety of land use types, the majority of which are parking lots (308). I cannot figure out why the filter command drops more cases than there are zeros in the YearBuilt variable.
+
+##Question 5
+### Create a new variable that measures the assessed land value (AssessedLa) per acre.
+```{r}
+
+sub_dat$ppacre <- sub_dat$dat.AssessedLa/sub_dat$dat.Acres
+```
+
+
+##Question 6
+### Which neighborhood has the highest average land value per acre? Use the group_by() and summarise() functions to answer this question.
+```{r}
+#num_hood<-as.numeric(as.character(dat$Nhood))
+
+options(tibble.print_max = Inf)
+
+dat_grouped <- group_by( sub_dat, dat.Nhood )
+
+
+summarise (dat_grouped,
+           max_N_ppa = max( ppacre, na.rm=T ),
+           ave_N_ppa = mean( ppacre, na.rm=T ),
+           total = n()
+           )
+```
+##Answer
+### The neighborhood with the highest average land value per acre is Lakefront. The next closest neighborhood is University Hill, followed by Washington Square.
+

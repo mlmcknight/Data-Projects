@@ -1,0 +1,72 @@
+---
+title: "Lab 3"
+author: "Matt McKnight"
+date: "February 13, 2017"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+## Combining Data
+```{r}
+library(Lahman)
+data(Teams)
+data(Salaries)
+
+```
+
+## Question 1
+### What is the average salary of a player on the Oakland A's in 2002? A player on the Boston Red Sox that same year? What is the total budget of each of these two franchises in 2002?  To answer the question, merge the Salaries and Teams datasets.
+```{r, echo=TRUE}
+
+library(plyr)
+library(dplyr)
+
+#clean data, Teams var name out of place.
+Teams.new <- Teams
+plyr::rename(Teams.new, c("teamID"="teamID2", "franchID"="teamID"))
+```
+
+```{r}
+#Merge
+Sal_Teams <- merge(Salaries, Teams.new, by.x=c("teamID","yearID"), by.y=c("teamID","yearID" ))  
+summary(Sal_Teams$playerID[Sal_Teams$yearID == "2002"])
+#Ave Salary for OAK player in 2002
+mean(Sal_Teams$salary[Sal_Teams$yearID == "2002" & Sal_Teams$teamID == "OAK"], na.rm = TRUE)
+#Ave Salary for BOS player in 2002
+mean(Sal_Teams$salary[Sal_Teams$yearID == "2002" & Sal_Teams$teamID == "BOS"], na.rm = TRUE)
+#Total franchise budget for OAK
+sum(Sal_Teams$salary[Sal_Teams$yearID == "2002" & Sal_Teams$teamID == "OAK"], na.rm = TRUE)
+#Total franchise budget for BOS
+sum(Sal_Teams$salary[Sal_Teams$yearID == "2002" & Sal_Teams$teamID == "BOS"], na.rm = TRUE)
+```
+## Answer
+### The average salary of a player on the Oakland A's in 2002 was $1,481,636. An average Boston player from the same year made an annual salary of $3,612,202. The total payroll budget for the Oakland A's in 2002 was $40,004,167 while the Boston Red Sox budget was over double that amount at $108,366,060.
+
+## Question 2
+### Which variables are used for the default merge? Why would the following merge be problematic? merge(  Teams, Salaries, by.x="teamID", by.y="teamID" ) 
+
+## Answer
+### The variables used for the default merge between the Salary and Teams data sets were "teamID" and "yearID" because the salary data set included multiple years of the same data for unique players. 
+
+###The suggested merge would be problematic because it does not place an argument in the command to merge on "YearID". This will result merged data that drops desirable unique values based by year.
+
+
+## Question 3
+### Which city (birth city) has produced the most baseball hall-of-famers? Use the Master and HallOfFame datasets.
+```{r}
+data(Master)
+data(HallOfFame)
+intersect( names(HallOfFame), names(Master) )
+HoF_Mas = merge(HallOfFame, Master, by.x="playerID", by.y="playerID")
+table(HoF_Mas$birthCity, HoF_Mas$inducted)
+sum(HoF_Mas$birthCity =="Chicago" & HoF_Mas$inducted =="Y")
+
+```
+## Answer
+### The city that has produced the most baseball hall-of-famers is Chicago.
+
+
+
+

@@ -1,0 +1,466 @@
+---
+title: "Lab 6 - Matt_McKnight"
+author: "Matt McKnight"
+date: "March 2, 2017"
+output:
+  html_document:
+    runtime: shiny
+---
+
+# Graphics
+```{r setup, include=FALSE}
+knitr::opts_chunk$set( message=F, warning=F )
+
+
+library( Lahman )
+library(tibble)
+library(dplyr)
+data( Teams )
+ave.so <- Teams$SO / Teams$G
+
+
+```
+
+# Part I
+## QUESTION 1 & 2:
+### Plot average strike-outs by year. Use the gray() function to select a color, and add transparency. Use appropriate x and y axis conventions and labels.
+```{r}
+# scatterplot
+plot(
+      Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+      xlab='', ylab='',
+      pch=19,
+      col=gray(.7, alpha=.5),
+      cex=.65,
+      abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+      xlim=c(1900, 2015), ylim=c(0,9.475),
+      axes=FALSE, frame.plot=FALSE 
+      )
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+
+
+# Used:
+# http://www.statmethods.net/advgraphs/axes.html
+# http://stackoverflow.com/questions/16702137/remove-y-label-from-plot-in-r
+# Many other places for one or two args
+```
+
+
+## QUESTION 3:
+### Calculate the league average using tapply() or group_by() year, and add it to the graph. Use the argument type="b" to connect the dots.
+```{r}
+league_ave <- tapply(ave.so, Teams$yearID, mean)
+years<- c(1871:2015)
+
+# Scatterplot
+plot(
+      Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+      xlab='', ylab='',
+      pch=19,
+      col=gray(.7, alpha=.5),
+      cex=.65,
+      abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+      xlim=c(1900, 2015), ylim=c(0,9.475),
+      axes=FALSE, frame.plot=FALSE 
+      )
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+     
+# Plot league average
+points(
+       years[years>1899],league_ave[years>1899],
+       col="darkslateblue", type="b", pch=19, lwd=1)
+points(
+       years[years>1899],league_ave[years>1899],
+       col="darkslateblue", type="l", pch=19, lwd=1)
+
+
+```
+
+
+## QUESTION 4:
+### Reproduce at least two of the narrative texts ("US enters World War I", etc.). Note that a line break within text is created by including "\n" in your string.
+```{r eval=FALSE}
+print("Don't run me")
+identify(years,league_ave)
+# Note: identified two points for narrative text events: 76 93
+
+```
+
+```{r}
+
+# Scatterplot
+plot(
+      Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+      xlab='', ylab='',
+      pch=19,
+      col=gray(.7, alpha=.5),
+      cex=.65,
+      abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+      xlim=c(1900, 2015), ylim=c(0,9.475),
+      axes=FALSE, frame.plot=FALSE 
+      )
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+     
+# Plot league average
+points(
+       years[years>1899],league_ave[years>1899],
+       col="darkslateblue", type="b", pch=19, lwd=1)
+points(
+       years[years>1899],league_ave[years>1899],
+       col="darkslateblue", type="l", pch=19, lwd=1)
+
+# Add Text 
+text(
+     x=years[c(76)], y=league_ave[c(76)], 
+     labels= "Players return \n from World War II", 
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=3.5 ) 
+text(
+     x=years[c(93)], y=league_ave[c(93)],
+     labels= "Strike zone enlarged \n from 1963-68",
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=4.5 ) 
+
+segments(
+         1946, 3.5, 1946, 1.7, col=gray(.6, alpha=1))
+segments(
+         1963, 5.5, 1963, 3, col=gray(.6, alpha=1))
+
+mtext(
+      "Strikeouts on the Rise ", 
+      side=3, line=2, adj=.01, cex=1.5, col="black")
+mtext(
+      "There were more strikeouts in 2012 than at any other time in major league history.", 
+      side=3, line=1, adj=.01, cex=1, col="black")
+
+```
+
+
+
+# Part II
+## QUESTION 1:
+### Using R Shiny tools, add an input panel that allows users to select a team. Once selected, add the team trendline to the graph.
+```{r eval=FALSE}
+print("Don't run me")
+
+library(shiny)
+
+selectInput(inputId="team", 
+            label="Strikeouts per game per team (by batters)", 
+            choices= unique(Teams$name),
+            selected="Chicago Cubs"
+            )
+
+renderPlot({
+
+attach( Teams )
+
+# Scatterplot
+plot(
+      Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+      xlab='', ylab='',
+      pch=19,
+      col=gray(.7, alpha=.5),
+      cex=.65,
+      abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+      xlim=c(1900, 2015), ylim=c(0,9.475),
+      axes=FALSE, frame.plot=FALSE 
+      )
+
+# Plot league average
+points(
+       names(league_ave), league_ave, type="b", 
+       col="darkslateblue", pch=19, cex=1)
+points(
+       names(league_ave), league_ave, type="l", 
+       col="darkslateblue", pch=19, cex=1)
+
+# Add legend
+legend(
+       1899, 8.7, "League Average", bty="n", 
+       lty=1, lwd=2.5, col="darkslateblue")
+
+# Plot user input team average 
+user.team <- filter( Teams , name == input$team )
+user.team.so <- user.team$SO / user.team$G
+points( 
+       user.team$yearID, user.team.so,  type="b", 
+       lwd = 2 , pch = 19 , col="darkgoldenrod1" )
+points( 
+       user.team$yearID, user.team.so,  type="l", 
+       lwd = 2 , pch = 19 , col="darkgoldenrod1" )
+
+# Add legend
+legend(
+       1899, 8.1, "Team Average", bty="n", 
+       lty=1, lwd=2.5, col="goldenrod1")
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+
+# Add text 
+text(
+     x=years[c(76)], y=league_ave[c(76)], 
+     labels= "Players return \n from World War II", 
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=3.5 ) 
+text(
+     x=years[c(93)], y=league_ave[c(93)],
+     labels= "Strike zone enlarged \n from 1963-68",
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=4.5 ) 
+
+segments(
+         1946, 3.5, 1946, 1.7, col=gray(.6, alpha=1))
+segments(
+         1963, 5.5, 1963, 3, col=gray(.6, alpha=1))
+
+mtext(
+      "Strikeouts on the Rise ", 
+      side=3, line=2, adj=.01, cex=1.5, col="black")
+mtext(
+      "There were more strikeouts in 2012 than at any other time in major league history.", 
+      side=3, line=1, adj=.01, cex=1, col="black")
+
+})
+
+```
+
+```{r, echo=FALSE} 
+library(shiny)
+
+selectInput( inputId="team", 
+             label="Strikeouts per game per team (by batters)", 
+             choices= unique(Teams$name),
+             selected="Chicago Cubs"
+           )
+
+renderPlot({
+
+attach( Teams )
+
+# Scatterplot
+plot(
+      Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+      xlab='', ylab='',
+      pch=19,
+      col=gray(.7, alpha=.5),
+      cex=.65,
+      abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+      xlim=c(1900, 2015), ylim=c(0,9.475),
+      axes=FALSE, frame.plot=FALSE 
+      )
+
+# Plot league average
+points(
+       names(league_ave), league_ave, type="b", 
+       col="darkslateblue", pch=19, cex=1)
+points(
+       names(league_ave), league_ave, type="l", 
+       col="darkslateblue", pch=19, cex=1)
+
+# Add legend
+legend(
+       1899, 8.7, "League Average", bty="n", 
+       lty=1, lwd=2.5, col="darkslateblue")
+
+# Plot user input team average 
+user.team <- filter( Teams , name == input$team )
+user.team.so <- user.team$SO / user.team$G
+points( 
+       user.team$yearID, user.team.so,  type="b", 
+       lwd = 2 , pch = 19 , col="darkgoldenrod1" )
+points( 
+       user.team$yearID, user.team.so,  type="l", 
+       lwd = 2 , pch = 19 , col="darkgoldenrod1" )
+
+# Add legend
+legend(
+       1899, 8.1, "Team Average", bty="n", 
+       lty=1, lwd=2.5, col="goldenrod1")
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+
+# Add text 
+text(
+     x=years[c(76)], y=league_ave[c(76)], 
+     labels= "Players return \n from World War II", 
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=3.5 ) 
+text(
+     x=years[c(93)], y=league_ave[c(93)],
+     labels= "Strike zone enlarged \n from 1963-68",
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=4.5 ) 
+
+segments(
+         1946, 3.5, 1946, 1.7, col=gray(.6, alpha=1))
+segments(
+         1963, 5.5, 1963, 3, col=gray(.6, alpha=1))
+
+mtext(
+      "Strikeouts on the Rise ", 
+      side=3, line=2, adj=.01, cex=1.5, col="black")
+mtext(
+      "There were more strikeouts in 2012 than at any other time in major league history.", 
+      side=3, line=1, adj=.01, cex=1, col="black")
+
+})
+```
+
+
+##QUESTION 2:
+###Report the selected team name on the graph.
+```{r}
+library(shiny)
+library( Lahman )
+data(Teams)
+ave.so <- Teams$SO / Teams$G
+league_ave <- tapply(ave.so, Teams$yearID, mean)
+years<- c(1871:2015)
+
+#selection code adapted from https://shiny.rstudio.com/articles/plot-interaction.html
+
+ui <- basicPage(
+plotOutput("plot1",
+           hover = "plot_hover",
+           click = "plot_click"
+           ),
+           verbatimTextOutput("info"))
+
+server <- function(input, output) {
+  output$plot1 <- renderPlot({
+    plot(
+          Teams$yearID[Teams$yearID>1899], ave.so[Teams$yearID>1899], 
+          xlab='', ylab='',
+          pch=19,
+          col=gray(.7, alpha=.5),
+          cex=.65,
+          abline(h=1:9, col = gray(.7, alpha=.5), lty =3),
+          xlim=c(1900, 2015), ylim=c(0,9.475),
+          axes=FALSE, frame.plot=FALSE 
+         )
+
+# Plot league average
+points(
+       names(league_ave), league_ave, type="b", 
+       col="darkslateblue", pch=19, cex=1)
+points(
+       names(league_ave), league_ave, type="l", 
+       col="darkslateblue", pch=19, cex=1)
+
+# Add legend
+legend(
+       1899, 8.7, "League Average", bty="n", 
+       lty=1, lwd=2.5, col="darkslateblue")
+
+# Add legend
+legend(
+       1899, 8.1, "Team Average", bty="n", 
+       lty=1, lwd=2.5, col="goldenrod1")
+
+# Add axes
+axis( 
+     side=1, at=c(1900,2015), labels=c("",""), lwd.ticks=0)
+axis( 
+     side=1, at=seq (1900, 2020, by=10 ), 
+     padj=-2, hadj=-.08, tck=-.015, cex.axis=0.8)
+
+axis( 
+     side=4, at=seq(0, 9, by=1 ), las=2,  
+     lty=0, col.axis=gray(.4, alpha=1),
+     tick=FALSE, line=-.9, tck=0, cex.axis=0.8)
+
+# Add text 
+text(
+     x=years[c(76)], y=league_ave[c(76)], 
+     labels= "Players return \n from World War II", 
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=3.5 ) 
+text(
+     x=years[c(93)], y=league_ave[c(93)],
+     labels= "Strike zone enlarged \n from 1963-68",
+     pos=1, cex=.6, col=gray(.6, alpha=1), offset=4.5 ) 
+
+segments(
+         1946, 3.5, 1946, 1.7, col=gray(.6, alpha=1))
+segments(
+         1963, 5.5, 1963, 3, col=gray(.6, alpha=1))
+
+mtext(
+      "Strikeouts on the Rise ", 
+      side=3, line=2, adj=.01, cex=1.5, col="black")
+mtext(
+      "There were more strikeouts in 2012 than at any other time in major league history.", 
+      side=3, line=1, adj=.01, cex=1, col="black")
+  })
+
+# Create click and hover tools
+  output$info <- renderText({
+    xy_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+    }
+    xy_range_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
+             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+    }
+
+    paste0(
+      "click: ", xy_str(input$plot_click),
+      "hover: ", xy_str(input$plot_hover)
+    )
+  })
+ 
+}
+
+shinyApp(ui, server)
+```
+Note: I was unsure how to combine the click/hover shiny tool with the select drop-down menu shiny tool, so I ran both separately.
+
